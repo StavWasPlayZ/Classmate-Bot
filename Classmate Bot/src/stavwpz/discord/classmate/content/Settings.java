@@ -38,16 +38,16 @@ public final class Settings implements IMainRunner {
 	public void runOnMain() {
 		CommandManager.registerCommand("set", "<key> [value...]", 1, (event, content) ->
 			Utils.writeFileCommand(SETTINGS, content, event.getChannel(), SETTINGS_DATA_LOCATION, DEF_DATA_LOCATION, false)
-		, "מגדיר את הבוט לרצונך", "$sethelp", EnumSet.of(Permission.ADMINISTRATOR));
+		, "מגדיר את הבוט לרצונך", "sethelp", EnumSet.of(Permission.ADMINISTRATOR));
 		
 		CommandManager.registerCommand("add", "<key> <values...>", 2, (event, content) ->
 			Utils.writeFileCommand(SETTINGS, content, event.getChannel(), SETTINGS_DATA_LOCATION, DEF_DATA_LOCATION, true)
-		, null, "$sethelp", EnumSet.of(Permission.ADMINISTRATOR), false);
+		, null, "sethelp", EnumSet.of(Permission.ADMINISTRATOR), false);
 		
 		CommandManager.registerCommand("sethelp", null, 0, (event, content) -> 
 			event.getChannel().sendMessageEmbeds(Utils.helpEmbedGenerator("🔑 עוזר המפתחות", "רשימת המפתחות הינה:", SETTINGS.keySet(), (key) ->
 				Utils.getFormattedEntry(key, SETTINGS.get(key), "🗝", true)
-			, Utils.getFooter("set", "add"), null).build()).queue()
+			, Utils.getFooter("set", "add", event.getGuild()), null).build()).queue()
 		, null, null, EnumSet.of(Permission.ADMINISTRATOR), false);
 	}
 }

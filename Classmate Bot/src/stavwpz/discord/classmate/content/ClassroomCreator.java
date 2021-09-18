@@ -32,6 +32,8 @@ public final class ClassroomCreator implements IMainRunner {
 				return;
 			}
 			
+			final String prefix = Settings.getSetting(event.getGuild(), "prefix");
+			
 			String catName = addWhitespace(getValue(event.getGuild(), "categoryName")
 					.replace("{subject}", content[0])),
 				starterRole = Settings.getSetting(event.getGuild(), "starterRole"),
@@ -40,7 +42,7 @@ public final class ClassroomCreator implements IMainRunner {
 				vcs = getValue(event.getGuild(), "vcs").split(",");
 			
 			if (starterRole == null) {
-				Utils.sendErrorEmbed(event.getChannel(), "זה נראה כאילו לא הגדרת את קבוצת התלמידים.\nהשתמש ב- `$set starterRole (קבוצה) על-מנת להגדיר זאת ונסה שנית.", null);
+				Utils.sendErrorEmbed(event.getChannel(), "זה נראה כאילו לא הגדרת את קבוצת התלמידים.\nהשתמש ב- `"+prefix+"set starterRole [קבוצה] על-מנת להגדיר זאת ונסה שנית.", null);
 				return;
 			}
 			if (content.length > 1)
@@ -59,7 +61,7 @@ public final class ClassroomCreator implements IMainRunner {
 			for (int i = 0; i < vcs.length; i++)
 				category.createVoiceChannel(getNewChannelName(vcs[i], emoji2, content[0])).queue();
 			
-			event.getChannel().sendMessageEmbeds(new EmbedBuilder().setTitle("✅ הצלחה!").addField("קטגוריה \""+category.getName()+"\" נוספה בהצלחה ביחד עם דרגת \""+teachRole.getName()+"\".", "אתם יכולים לערוך את שבלונת הערוצים! בקרו בפקודה `$classtemphelp` לעוד מידע", false).setColor(Color.GREEN).build()).queue();
+			event.getChannel().sendMessageEmbeds(new EmbedBuilder().setTitle("✅ הצלחה!").addField("קטגוריה \""+category.getName()+"\" נוספה בהצלחה ביחד עם דרגת \""+teachRole.getName()+"\".", "אתם יכולים לערוך את שבלונת הערוצים! בקרו בפקודה `"+prefix+"classtemphelp` לעוד מידע", false).setColor(Color.GREEN).build()).queue();
 			
 		}, "מוסיף מקצוע חדש לשרת", null, EnumSet.of(Permission.MANAGE_CHANNEL));
 		
@@ -74,7 +76,7 @@ public final class ClassroomCreator implements IMainRunner {
 		CommandManager.registerCommand("classtemphelp", null, 0, (event, content) ->
 			event.getChannel().sendMessageEmbeds(Utils.helpEmbedGenerator("🏫 עוזר השבלונות", "הנה רשימת המפתחות שניתן לשנות:", TEMPLATE.keySet(), (key) ->
 				Utils.getFormattedEntry(key, TEMPLATE.get(key), "🗝", true)
-			, Utils.getFooter("setclasstemp", "addclasstemp"),
+			, Utils.getFooter("setclasstemp", "addclasstemp", event.getGuild()),
 				"**רשימת משתנים**\nמשתנים הם טקסט שניתן להוסיפו לכותרות, והוא מתחלף בצורה אוטומטית עם התוכן המצורף לו. מביניהם\n"+getVariableList(new Variable("{subject}", "שם השיעור הרצוי"), new Variable("{emoji1}", "אמוג'י מס' 1, בדרך כלל האחד שמשומש לשם הקטגוריה"), new Variable("{emoji2}", "אמוג'י מס' 2, בדרך כלל האחד שמשומש לשם ערוץ")))
 				.build()).queue()
 		, null, "classtemphelp", EnumSet.of(Permission.MANAGE_CHANNEL), false);

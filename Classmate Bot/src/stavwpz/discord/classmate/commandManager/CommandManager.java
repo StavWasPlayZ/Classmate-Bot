@@ -10,6 +10,7 @@ import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import stavwpz.discord.Utils;
+import stavwpz.discord.classmate.content.Settings;
 
 public class CommandManager extends ListenerAdapter {
 	
@@ -21,9 +22,8 @@ public class CommandManager extends ListenerAdapter {
 				Command command = map.get(key);
 				if (!command.showOnList)
 					return "";
-				//TODO replace '$' with guild prefix
 				return String.format("• `%s%s`%s%s\n",
-					"$", key, (command.arguments == null) ? "" : " `"+command.arguments+"`" ,(command.description == null) ? "" : " "+command.description);
+					Settings.getSetting(event.getGuild(), "prefix"), key, (command.arguments == null) ? "" : " `"+command.arguments+"`" ,(command.description == null) ? "" : " "+command.description);
 			}, null, null).build()).queue()
 		, "מספק את רשימת הפקודות בשרת", null, null, true));
 		return map;
@@ -69,8 +69,7 @@ public class CommandManager extends ListenerAdapter {
 		final String[] content = event.getMessage().getContentRaw().split("\\s+");
 		if (content.length == 0 || event.getAuthor().isBot())
 			return;
-		//TODO replace '$' with guild prefix
-		final String calledCommand = content[0].substring("$".length());		
+		final String calledCommand = content[0].substring(Settings.getSetting(event.getGuild(), "prefix").length());		
 
 		if (COMMANDS.containsKey(calledCommand)) {
 			Command command = COMMANDS.get(calledCommand);

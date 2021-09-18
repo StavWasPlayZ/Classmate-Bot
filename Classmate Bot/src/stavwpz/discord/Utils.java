@@ -15,6 +15,7 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.TextChannel;
 import stavwpz.data.sss.SSStorage;
 import stavwpz.discord.classmate.commandManager.CommandManager;
+import stavwpz.discord.classmate.content.Settings;
 
 /**
  * Some general utilities for this bot.
@@ -32,7 +33,7 @@ public abstract class Utils {
 	 * @param helpCmd The command to execute to find more information about this command, optional
 	 */
 	public static void sendErrorEmbed(TextChannel channel, String message, String helpCmd) {
-		channel.sendMessageEmbeds(makeErrorEmbed(message, helpCmd).build()).queue();
+		channel.sendMessageEmbeds(makeErrorEmbed(message, helpCmd, channel.getGuild()).build()).queue();
 	}
 	/**
 	 * Makes a new, generic error {@link EmbedBuilder} with the following settings: 
@@ -40,9 +41,9 @@ public abstract class Utils {
 	 * @param helpCmd The command to execute to find more information about this command, optional
 	 * @return A new modifiable EmbedBuilder with the settings above.
 	 */
-	public static EmbedBuilder makeErrorEmbed(String message, String helpCmd) {
-		//TODO replace '$' with guild prefix
-		return new EmbedBuilder().setTitle("❌ שגיאה!").setColor(Color.RED).addField(message, "השתמש ב- `"+"$"+(helpCmd == null ? "sethelp" : helpCmd)+"` לרשימת המפתחות ותבנית הפקודה.", false);
+	public static EmbedBuilder makeErrorEmbed(String message, String helpCmd, Guild guild) {
+		final String prefix = Settings.getSetting(guild, "prefix");
+		return new EmbedBuilder().setTitle("❌ שגיאה!").setColor(Color.RED).addField(message, "השתמש ב- `"+prefix+(helpCmd == null ? "sethelp" : prefix+helpCmd)+"` לרשימת המפתחות ותבנית הפקודה.", false);
 	}
 	
 	/**
@@ -125,8 +126,8 @@ public abstract class Utils {
 	public static String getFormattedEntry(String keyName, SSStorage value, String markEmoji, boolean includeValue) {
 		return String.format(markEmoji+" `%s`%s%s\n", keyName, (includeValue ? " `["+value.value+"]`" : ""), (value.description == null) ? "" : ": "+value.description);
 	}
-	public static String getFooter(String commandName, String arrayCmdName) {
-		return String.format(("**שימוש הפקודה**: `{pref}%s`\n"+((arrayCmdName == null) ? "" : "למפתחות מסוג **`array`** ניתן ואף רצוי להשתמש ב- `{pref}%s`\n")+"\n*חוסר תוכן יוביל לשחזור המפתח*").replace("{pref}", "$"), commandName+" "+CommandManager.getCommand(commandName).arguments, arrayCmdName+" "+CommandManager.getCommand(arrayCmdName).arguments);
+	public static String getFooter(String commandName, String arrayCmdName, Guild guild) {
+		return String.format(("**שימוש הפקודה**: `{pref}%s`\n"+((arrayCmdName == null) ? "" : "למפתחות מסוג **`array`** ניתן ואף רצוי להשתמש ב- `{pref}%s`\n")+"\n*חוסר תוכן יוביל לשחזור המפתח*").replace("{pref}", Settings.getSetting(guild, "prefix")), commandName+" "+CommandManager.getCommand(commandName).arguments, arrayCmdName+" "+CommandManager.getCommand(arrayCmdName).arguments);
 	}
 	
 	/**
@@ -140,24 +141,25 @@ public abstract class Utils {
 	 */
 	public static void writeFileCommand(HashMap<String, SSStorage> originalFileValues, String[] args, TextChannel channel,
 			String fileLocation, String defPath, boolean add) {
+		String prefix = Settings.getSetting(channel.getGuild(), "prefix");
 		if (!originalFileValues.containsKey(args[0])) {
-			sendErrorEmbed(channel, "לא מצאתי אף התאמה ל- "+args[0]+". האם אתה בטוח שרשמת את שם המפתח נכון?", "$sethelp");
+			sendErrorEmbed(channel, "לא מצאתי אף התאמה ל- "+args[0]+". האם אתה בטוח שרשמת את שם המפתח נכון?", prefix+"sethelp");
 			return;
 		}
 		String type = originalFileValues.get(args[0]).value;
 		if (add && !type.equals("array")) {
-			Utils.sendErrorEmbed(channel, "אני יכול לאשר רק מפתחות מסוג `array` בשביל הפקודה הזו.", "$sethelp");
+			Utils.sendErrorEmbed(channel, "אני יכול לאשר רק מפתחות מסוג `array` בשביל הפקודה הזו.", prefix+"sethelp");
 			return;
 		}
 		
 		
 		final File guildSaveFile = getGuildSaveFile(channel.getGuild(), fileLocation);
 		final String[] values = Arrays.copyOfRange(args, 1, args.length);
-		String value = null, output = "Nothing";
+		String value = null, output = null;
+		final String tempExistingValue = getValue(fileLocation, channel.getGuild(), defPath, args[0]);
 		
 
 		if (add) {
-			final String tempExistingValue = getValue(fileLocation, channel.getGuild(), defPath, args[0]);
 			String existingValue = (tempExistingValue == null) ? "" : tempExistingValue;
 			for (int i = 0; i < values.length; i++)
 				if (!existingValue.contains(values[i]))
@@ -168,11 +170,12 @@ public abstract class Utils {
 			value = SSStorage.formatValue(values, type);
 			if (value == null) {
 				//The entered value doesn't seem to be corresponding to the expected one. Make sure your value matches the type.
-				sendErrorEmbed(channel, "התוכן שהוכנס לא נראה תואם לסוג המפתח.", "$sethelp");
+				sendErrorEmbed(channel, "התוכן שהוכנס לא נראה תואם לסוג המפתח.", prefix+"sethelp");
 				return;
 			}
 			output = value;
-		}
+		} else
+			output = (tempExistingValue == null) ? "כלום" : tempExistingValue;
 		
 		try {
 			SSStorage.write(args[0], value, guildSaveFile);
@@ -181,7 +184,7 @@ public abstract class Utils {
 			return;
 		}
 		
-		channel.sendMessageEmbeds(new EmbedBuilder().setTitle("🔧 הצלחה!").addField(output+" שוייך בהצלחה ל- "+args[0], "לעוד מפתחות בקרו בפקודה `$sethelp`", false).setColor(Color.GREEN).build()).queue();
+		channel.sendMessageEmbeds(new EmbedBuilder().setTitle("🔧 הצלחה!").addField(args[0]+" שוייך בהצלחה ל- "+output, "לעוד מפתחות בקרו בפקודה `"+Settings.getSetting(channel.getGuild(), "prefix")+"sethelp`", false).setColor(Color.GREEN).build()).queue();
 	}
 	private static void throwFileException(TextChannel channel, Guild guild, Exception e) {
 		System.out.println("NOTICE: Unable to write on file for guild "+guild.getId()+". Exception is being printed.");
