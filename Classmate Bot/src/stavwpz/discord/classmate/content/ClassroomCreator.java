@@ -49,7 +49,7 @@ public final class ClassroomCreator implements IMainRunner {
 				catName = catName.replace("{emoji1}", content[1]);
 			
 			
-			Role teachRole = event.getGuild().createRole().setName(addWhitespace(getValue(event.getGuild(), "teacherRoleName")).replace("{subject}", content[0]))
+			Role teachRole = event.getGuild().createRole().setName(addWhitespace(getValue(event.getGuild(), "teacherRoleName").replace("{subject}", content[0])))
 				.setColor(0x3498db).setMentionable(true).complete();
 			
 			Category category = event.getGuild().createCategory(catName)
@@ -88,7 +88,7 @@ public final class ClassroomCreator implements IMainRunner {
 		return builder.toString();
 	}
 	private static String getNewChannelName(String name, String emoji, String subject) {
-		return addWhitespace(name).replace("{emoji2}", (emoji == null) ? "" : emoji).replace("{subject}", subject);
+		return addWhitespace(name.replace("{emoji2}", (emoji == null) ? "" : emoji).replace("{subject}", subject));
 	}
 	private static String getValue(Guild guild, String key) {
 		return Utils.getValue(STORAGE_PATH, guild, DEF_STORAGE_PATH, key);

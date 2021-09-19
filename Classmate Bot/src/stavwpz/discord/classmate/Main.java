@@ -15,6 +15,7 @@ import stavwpz.discord.classmate.commandManager.CommandManager;
 import stavwpz.discord.classmate.content.ChatCreator;
 import stavwpz.discord.classmate.content.ClassroomCreator;
 import stavwpz.discord.classmate.content.Filter;
+import stavwpz.discord.classmate.content.HistoryRemover;
 import stavwpz.discord.classmate.content.RoleAttacher;
 import stavwpz.discord.classmate.content.Settings;
 
@@ -27,7 +28,8 @@ public final class Main {
 	
 	private static IMainRunner[] runners = {
 		new Settings(),
-		new ClassroomCreator()
+		new ClassroomCreator(),
+		new HistoryRemover()
 	};
 	
 	public static void main(String[] args) throws LoginException, FileNotFoundException {

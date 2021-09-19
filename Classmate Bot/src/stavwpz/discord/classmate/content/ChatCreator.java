@@ -34,7 +34,9 @@ public final class ChatCreator extends ListenerAdapter {
 			return;
 	
 		TextChannel channel2Remove = TEXT_CHANNELS.get(channel);
-		channel2Remove.delete().queue();
+		try {
+			channel2Remove.delete().queue();
+		} catch (NullPointerException e) {} // No idea why but sometimes the value is null and the action was successful.
 		TEXT_CHANNELS.remove(channel);
 		return;
 	}
