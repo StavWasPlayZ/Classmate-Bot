@@ -49,7 +49,6 @@ public final class Filter extends ListenerAdapter {
 			.addField("שימוש במילים לא ראויות בשרת", event.getAuthor().getAsMention()+"!\nהמערכת זיהת שימוש ב- **"+words+"** מילים לא רצויות בשרת.\nאבקש ממך להימנע מהם פעם הבאה.", false)
 			.setColor(Color.YELLOW).build()).complete().delete().queueAfter(10, TimeUnit.SECONDS);
 		
-		//FIXME "event.getGuild().getTextChannelById(logChannelId)" claims to be null
 		String logChannelId = Settings.getSetting(event.getGuild(), "logChannel");
 		if (logChannelId != null) {
 			TextChannel channel = event.getGuild().getTextChannelById(logChannelId);
