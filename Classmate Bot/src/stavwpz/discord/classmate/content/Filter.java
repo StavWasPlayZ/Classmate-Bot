@@ -55,8 +55,8 @@ public final class Filter extends ListenerAdapter {
 			TextChannel channel = event.getGuild().getTextChannelById(logChannelId);
 			if (channel != null)
 				channel.sendMessageEmbeds(new EmbedBuilder().setTitle("⚠ אזהרה")
-				.addField("שימוש במילים לא ראויות בשרת", event.getMember().getEffectiveName()+" נתפס ע\"י המערכת עובר את הפילטרים של השרת.\nההודעה:\n"+censoredSentence, false)
-				.setColor(Color.YELLOW).build()).queue();
+					.addField("שימוש במילים לא ראויות בשרת", event.getMember().getEffectiveName()+" נתפס ע\"י המערכת עובר את הפילטרים של השרת.\nההודעה:\n"+censoredSentence, false)
+					.setColor(Color.YELLOW).build()).queue();
 		}
 	}
 	

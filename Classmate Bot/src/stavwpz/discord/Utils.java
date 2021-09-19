@@ -95,8 +95,8 @@ public abstract class Utils {
 		SSStorage defValue = SSStorage.get(new Scanner(getResourceAsStream(getDataPath(defPath))), key);
 		return (defValue == null) ? null : defValue.value;
 	}
-	public static String getGuildPath(Guild guild, String dataLoctaion) {
-		return PARENT_FOLDER+"/"+guild.getId()+"/"+dataLoctaion;
+	public static String getGuildPath(Guild guild, String dataLocation) {
+		return PARENT_FOLDER+"/"+guild.getId()+((dataLocation == null) ? "" : "/"+dataLocation);
 	}
 	public static String getDataPath(String dataLocation) {
 		return PARENT_FOLDER+"/"+dataLocation;

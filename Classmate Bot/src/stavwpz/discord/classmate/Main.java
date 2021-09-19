@@ -42,7 +42,7 @@ public final class Main {
 			.enableCache(CacheFlag.VOICE_STATE)
 			.enableIntents(GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_VOICE_STATES)
 			.setActivity(Activity.listening("your needs"))
-			.addEventListeners(new CommandManager(), new RoleAttacher(), new Filter(), new ChatCreator())
+			.addEventListeners(new CommandManager(), new Settings(), new RoleAttacher(), new Filter(), new ChatCreator())
 			.build();
 		
 		//Settings.setFileMap();

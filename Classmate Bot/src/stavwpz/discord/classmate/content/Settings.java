@@ -1,10 +1,13 @@
 package stavwpz.discord.classmate.content;
 
+import java.io.File;
 import java.util.EnumSet;
 import java.util.HashMap;
 
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
+import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import stavwpz.data.sss.SSStorage;
 import stavwpz.discord.Utils;
 import stavwpz.discord.classmate.IMainRunner;
@@ -17,7 +20,7 @@ import stavwpz.discord.classmate.commandManager.CommandManager;
  * 
  * @author Stav c:
  */
-public final class Settings implements IMainRunner {
+public final class Settings extends ListenerAdapter implements IMainRunner {
 	
 	private static final String SETTINGS_DATA_LOCATION = "settings/settings.sss",
 		DEF_DATA_LOCATION = "settings/defaultSettings.sss";
@@ -50,4 +53,39 @@ public final class Settings implements IMainRunner {
 			, Utils.getFooter("set", "add", event.getGuild()), null).build()).queue()
 		, null, null, EnumSet.of(Permission.ADMINISTRATOR), false);
 	}
+	
+	@Override
+	public void onGuildLeave(GuildLeaveEvent event) {
+		final File file = new File(Utils.getGuildPath(event.getGuild(), null));
+		if(file.isDirectory())
+			deleteDir(file);
+		else
+			file.delete();
+	}
+	private void deleteDir(File dir) {
+		File[] files = dir.listFiles();
+		for (int i = 0; i < files.length; i++)
+			if (!files[i].delete())
+				if (files[i].isDirectory()) {
+					deleteDir(files[i]);
+					files[i].delete();
+				}
+		dir.delete();
+	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
